@@ -1,0 +1,137 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EX Quit Cigarettes Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        input[type="text"], input[type="number"], input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #00848e; /* Matched the logo color */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #006970; /* Darker hover color */
+        }
+        .output {
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>EX Quit Cigarettes Calculator</h2>
+    <label for="cigarettes">Cigarettes per day:</label>
+    <input type="number" id="cigarettes" placeholder="Enter number of cigarettes" required>
+    
+    <label for="cost">Cost per pack (USD):</label>
+    <input type="text" id="cost" placeholder="Enter cost per pack (USD)" required onblur="formatCurrency(this)">
+    
+    <label for="quitDate">Quit date:</label>
+    <input type="date" id="quitDate" required>
+    
+    <button onclick="calculateResults()">Calculate</button>
+    <button onclick="resetFields()">Reset</button>
+    <button onclick="copyResults()">Copy to Clipboard</button>
+    
+    <div class="output" id="results"></div>
+</div>
+
+<script>
+    function formatCurrency(input) {
+        let value = input.value.replace(/[^0-9.]/g, ''); // Strip out non-numeric characters
+        if (value) {
+            input.value = parseFloat(value).toFixed(2); // Ensure two decimal places
+        }
+    }
+
+    function calculateResults() {
+        const cigarettesPerDay = document.getElementById('cigarettes').value;
+        const costPerPack = parseFloat(document.getElementById('cost').value);
+        const quitDate = new Date(document.getElementById('quitDate').value);
+        const today = new Date();
+        
+        // Calculate days quit
+        const daysQuit = Math.floor((today - quitDate) / (1000 * 60 * 60 * 24));
+        const cigarettesAvoided = cigarettesPerDay * daysQuit;
+        const packsAvoided = cigarettesAvoided / 20; // assuming 20 cigarettes per pack
+        const moneySaved = packsAvoided * costPerPack;
+
+        // Life saved calculations (11 minutes per cigarette)
+        const minutesPerCig = 11;
+        const minutesSaved = cigarettesAvoided * minutesPerCig;
+        const hoursSaved = minutesSaved / 60;
+        const daysSaved = hoursSaved / 24;
+        const yearsSaved = daysSaved / 365;
+
+        if (isNaN(cigarettesAvoided) || isNaN(moneySaved) || daysQuit < 0) {
+            document.getElementById('results').innerHTML = "<p>Please enter valid inputs and ensure your quit date is in the past.</p>";
+        } else {
+            const resultsText = `
+                Days since quitting: ${daysQuit.toLocaleString()}
+                Cigarettes avoided: ${cigarettesAvoided.toLocaleString()}
+                Money saved: $${moneySaved.toFixed(2)}
+                Life saved in minutes: ${Math.round(minutesSaved).toLocaleString()}
+                Life saved in hours: ${Math.round(hoursSaved).toLocaleString()}
+                Life saved in days: ${Math.round(daysSaved).toLocaleString()}
+                Life saved in years: ${Math.round(yearsSaved * 100) / 100} years
+            `;
+
+            document.getElementById('results').innerHTML = `
+                <p>Days since quitting: ${daysQuit.toLocaleString()}</p>
+                <p>Cigarettes avoided: ${cigarettesAvoided.toLocaleString()}</p>
+                <p>Money saved: $${moneySaved.toFixed(2)}</p>
+                <p>Life saved in minutes: ${Math.round(minutesSaved).toLocaleString()}</p>
+                <p>Life saved in hours: ${Math.round(hoursSaved).toLocaleString()}</p>
+                <p>Life saved in days: ${Math.round(daysSaved).toLocaleString()}</p>
+                <p>Life saved in years: ${Math.round(yearsSaved * 100) / 100} years</p>
+            `;
+
+            document.getElementById('results').setAttribute('data-results', resultsText.trim());
+        }
+    }
+
+    function resetFields() {
+        document.getElementById('cigarettes').value = '';
+        document.getElementById('cost').value = '';
+        document.getElementById('quitDate').value = '';
+        document.getElementById('results').innerHTML = '';
+    }
+
+    function copyResults() {
+        const resultsText = document.getElementById('results').getAttribute('data-results');
+        if (resultsText) {
+            navigator.clipboard.writeText(resultsText);
+            alert("Results copied to clipboard! You're ready to go and share this information in the EX Community.");
+        } else {
+            alert("Please calculate the results first.");
+        }
+    }
+</script>
+
+</body>
+</html>
